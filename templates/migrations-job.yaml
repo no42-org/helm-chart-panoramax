@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrations
+  labels:
+    {{- include "panoramax.labels" . | nindent 4 }}
+  annotations:
+    # Runs before any other resources are created/upgraded.
+    # NOTE: because this is a pre-install hook, the `db` StatefulSet and Service
+    # must already exist from a prior install when running pre-upgrade. On a
+    # brand-new install Helm creates hook resources first, so `db` won't exist
+    # yet — the init container below will wait until it does.
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+        {{- include "panoramax.waitForDb" . | nindent 8 }}
+      containers:
+        - name: migrations
+          image: {{ include "panoramax.apiImage" . }}
+          args: ["db-upgrade"]
+          env:
+            - name: DB_URL
+              value: {{ include "panoramax.dbUrl" . }}

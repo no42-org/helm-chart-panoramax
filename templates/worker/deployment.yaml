@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: background-worker
+  labels:
+    {{- include "panoramax.labels" . | nindent 4 }}
+    app: background-worker
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  selector:
+    matchLabels:
+      app: background-worker
+  template:
+    metadata:
+      labels:
+        app: background-worker
+    spec:
+      initContainers:
+        {{- include "panoramax.waitForDb" . | nindent 8 }}
+      containers:
+        - name: worker
+          image: {{ include "panoramax.apiImage" . }}
+          args: ["picture-worker"]
+          env:
+            - name: DB_URL
+              value: {{ include "panoramax.dbUrl" . }}
+            - name: PICTURE_PROCESS_DERIVATES_STRATEGY
+              value: {{ .Values.api.derivatesStrategy }}
+            - name: FS_URL
+              value: /data/geovisio
+            # Uncomment and set API_BLUR_URL to enable privacy blurring
+            # - name: API_BLUR_URL
+            #   value: http://blur-api:5500
+          volumeMounts:
+            - name: pic-data
+              mountPath: /data/geovisio
+      volumes:
+        - name: pic-data
+          persistentVolumeClaim:
+            claimName: pic-data

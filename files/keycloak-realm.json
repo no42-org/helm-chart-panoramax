@@ -1,0 +1,12 @@
+{
+  "_placeholder": "Replace this file with the actual Keycloak realm configuration.",
+  "_instructions": [
+    "Option 1: copy keycloak-realm.json from the Panoramax upstream repository",
+    "         (https://gitlab.com/panoramax/server/api)",
+    "Option 2: export from a running instance via:",
+    "         GET http://localhost:8182/admin/realms/geovisio",
+    "         with Authorization: Bearer <admin-token>",
+    "The realm JSON may use ${GEOVISIO_BASE_URL} and ${GEOVISIO_CLIENT_SECRET}",
+    "placeholders — Keycloak substitutes them from environment variables at import time."
+  ]
+}

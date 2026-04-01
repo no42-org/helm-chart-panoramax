@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  labels:
+    {{- include "panoramax.labels" . | nindent 4 }}
+spec:
+  # Headless — pods address db directly via DNS (required for StatefulSet)
+  clusterIP: None
+  selector:
+    app: db
+  ports:
+    - port: 5432
+      targetPort: 5432

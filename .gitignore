@@ -1,0 +1,20 @@
+# AI tools
+.claude/
+.cursor/
+.copilot/
+.continue/
+.aider*
+.windsurf/
+
+# BMAD
+_bmad/
+_bmad-output/
+
+# Helm
+*.tgz
+charts/
+.helmignore
+
+# OS
+.DS_Store
+Thumbs.db

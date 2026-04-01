@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pic-data
+  labels:
+    {{- include "panoramax.labels" . | nindent 4 }}
+spec:
+  # ReadWriteOnce is sufficient for vind (single-node). If you scale workers
+  # across multiple nodes, change this to ReadWriteMany and use a compatible
+  # storage class (e.g. NFS, Longhorn, or a cloud provider's RWX class).
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.api.pictureStorage }}

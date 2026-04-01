@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: role-init
+  labels:
+    {{- include "panoramax.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  # Retries handle the race with the migrations job completing
+  backoffLimit: 10
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+        {{- include "panoramax.waitForDb" . | nindent 8 }}
+      containers:
+        - name: role-init
+          image: {{ include "panoramax.apiImage" . }}
+          command:
+            - panoramax_backend
+            - user
+            - elysee
+            - --set-role
+            - admin
+            - --create
+          env:
+            - name: DB_URL
+              value: {{ include "panoramax.dbUrl" . }}

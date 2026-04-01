@@ -1,0 +1,42 @@
+# Tag applied to both panoramax/api and panoramax/website images
+imageTag: latest
+
+# External base URL of the API service (used by Keycloak for redirect URIs and
+# by the website to reach the API). Set this to the LoadBalancer IP/hostname
+# assigned to the `api` service after `helm install`.
+apiExternalUrl: "http://localhost:5000"
+
+# External base URL of the Keycloak auth service (used by the browser for the
+# OAuth dance). Set this to the LoadBalancer IP/hostname of the `auth` service.
+authExternalUrl: "http://localhost:8182"
+
+db:
+  image: postgis/postgis:16-3.4
+  name: geovisio
+  user: gvs
+  password: gvspwd
+  storage: 10Gi
+
+auth:
+  image: quay.io/keycloak/keycloak:20.0.1
+  adminUser: admin
+  adminPassword: password
+  # Must match OAUTH_CLIENT_SECRET in api and the client secret in keycloak-realm.json
+  clientSecret: what_a_secret
+
+api:
+  secretKey: a_very_secret_key_never_to_be_used_in_production
+  forceAuthOnUpload: "True"
+  # 0 = disable inline processing; all work is done by background workers
+  pictureProcessThreadsLimit: "0"
+  derivatesStrategy: PREPROCESS
+  nbApiThreads: "10"
+  # Size of the shared PVC for picture storage (used by api and worker pods)
+  pictureStorage: 20Gi
+
+website:
+  image: panoramax/website
+  instanceName: "GeoVisio"
+
+worker:
+  replicas: 5

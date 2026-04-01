@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: website
+  labels:
+    {{- include "panoramax.labels" . | nindent 4 }}
+    app: website
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: website
+  template:
+    metadata:
+      labels:
+        app: website
+    spec:
+      containers:
+        - name: website
+          image: {{ .Values.website.image }}:{{ .Values.imageTag }}
+          env:
+            - name: VITE_INSTANCE_NAME
+              value: {{ .Values.website.instanceName | quote }}
+            # Must be the externally accessible API URL (resolved by the browser)
+            - name: VITE_API_URL
+              value: {{ .Values.apiExternalUrl }}/
+          ports:
+            - containerPort: 3000

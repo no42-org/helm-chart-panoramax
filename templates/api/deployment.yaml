@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  labels:
+    {{- include "panoramax.labels" . | nindent 4 }}
+    app: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      initContainers:
+        {{- include "panoramax.waitForDb" . | nindent 8 }}
+        {{- include "panoramax.waitForAuth" . | nindent 8 }}
+      containers:
+        - name: api
+          image: {{ include "panoramax.apiImage" . }}
+          args: ["api"]
+          env:
+            - name: DB_URL
+              value: {{ include "panoramax.dbUrl" . }}
+            - name: OAUTH_CLIENT_ID
+              value: geovisio
+            - name: OAUTH_CLIENT_SECRET
+              value: {{ .Values.auth.clientSecret }}
+            # Internal cluster address — no extra_hosts hack needed in Kubernetes
+            - name: OAUTH_OIDC_URL
+              value: http://auth:8080/realms/geovisio
+            - name: OAUTH_PROVIDER
+              value: oidc
+            - name: FLASK_SECRET_KEY
+              value: {{ .Values.api.secretKey }}
+            - name: API_FORCE_AUTH_ON_UPLOAD
+              value: {{ .Values.api.forceAuthOnUpload | quote }}
+            - name: PICTURE_PROCESS_THREADS_LIMIT
+              value: {{ .Values.api.pictureProcessThreadsLimit | quote }}
+            - name: PICTURE_PROCESS_DERIVATES_STRATEGY
+              value: {{ .Values.api.derivatesStrategy }}
+            - name: FS_URL
+              value: /data/geovisio
+            - name: NB_API_THREADS
+              value: {{ .Values.api.nbApiThreads | quote }}
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: pic-data
+              mountPath: /data/geovisio
+      volumes:
+        - name: pic-data
+          persistentVolumeClaim:
+            claimName: pic-data
