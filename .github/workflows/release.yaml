@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: azure/setup-helm@v4
+
+      # Packages the chart and publishes it to the gh-pages branch as a Helm repo.
+      # Requires a `gh-pages` branch to exist:
+      #   git checkout --orphan gh-pages
+      #   git rm -rf .
+      #   git commit --allow-empty -m "init gh-pages"
+      #   git push origin gh-pages
+      # After first run: helm repo add panoramax https://no42-org.github.io/helm-chart-panoramax
+      - uses: helm/chart-releaser-action@v1.6.0
+        env:
+          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}

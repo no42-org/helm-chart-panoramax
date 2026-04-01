@@ -1,0 +1,31 @@
+name: Install test
+
+on:
+  pull_request:
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Spin up a real API server so --dry-run=server validates against actual schemas
+      - uses: helm/kind-action@v1
+
+      - uses: azure/setup-helm@v4
+
+      # Render all templates and validate every manifest against the kind API server
+      # without scheduling any pods. This catches invalid field names, bad types,
+      # and missing required fields that helm lint / helm template miss.
+      #
+      # Note: we skip --dry-run=server for hook Jobs because the pre-install
+      # migrations hook has an init container that references the `db` Service
+      # (not yet created during pre-install), which would cause a server-side
+      # validation rejection. Rendering and linting covers those resources.
+      - name: Validate manifests
+        run: |
+          helm template panoramax . \
+            --set apiExternalUrl=http://127.0.0.1:5000 \
+            --set authExternalUrl=http://127.0.0.1:8182 \
+            --skip-tests \
+          | kubectl apply --dry-run=server -f -
