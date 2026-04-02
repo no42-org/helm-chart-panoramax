@@ -72,6 +72,52 @@ The realm JSON supports `${GEOVISIO_BASE_URL}` and `${GEOVISIO_CLIENT_SECRET}` s
 - `worker` Deployment has an init container waiting for `db:5432`
 - `role-init-job` (post-install hook) retries up to 10 times to handle the migration race
 
+## Git workflow
+
+- **Never push directly to `main`.** All changes go through a pull request.
+- Create a branch, open a PR, and merge via GitHub.
+
+### Commit messages
+
+Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+Common types:
+
+| Type | When to use |
+|---|---|
+| `feat` | New feature or chart capability |
+| `fix` | Bug fix |
+| `chore` | Maintenance (deps, CI, tooling) |
+| `docs` | Documentation only |
+| `refactor` | Code change with no behaviour change |
+| `ci` | Changes to GitHub Actions workflows |
+
+Examples:
+
+```
+feat(worker): add horizontal pod autoscaler support
+fix(migrations): resolve db hostname lookup in init container
+chore(deps): bump actions/checkout from 4 to 6
+ci: exclude templates/ from yamllint
+docs: add vind local deployment guide to README
+```
+
+Breaking changes: append `!` after the type and add a `BREAKING CHANGE:` footer.
+
+```
+feat!: rename apiExternalUrl to api.externalUrl
+
+BREAKING CHANGE: values key renamed; update your values.yaml before upgrading.
+```
+
 ## Storage note
 
 `pic-data-pvc.yaml` uses `ReadWriteOnce`. This works on vind (single node). For multi-node clusters with multiple worker pods, switch to `ReadWriteMany` and a compatible storage class.
