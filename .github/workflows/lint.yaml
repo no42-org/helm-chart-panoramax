@@ -26,6 +26,8 @@ jobs:
           file_or_dir: .
           config_data: |
             extends: default
+            ignore: |
+              templates/
             rules:
               line-length: disable
               truthy: disable
