@@ -8,7 +8,7 @@ WEBSITE_PORT  := 3000
 DEV_CLUSTER := panoramax-dev
 
 HELM_DEPS := helm
-DEPS      := helm kubectl vcluster
+DEPS      := helm kubectl kind
 
 define check_bins
 @for dep in $(1); do \
@@ -46,11 +46,11 @@ confirm: check-deps
 ##@ Local Cluster
 
 .PHONY: cluster-create
-cluster-create: check-deps ## Create a local vind dev cluster (vcluster create panoramax-dev)
-	vcluster create $(DEV_CLUSTER)
+cluster-create: check-deps ## Create a local kind dev cluster
+	kind create cluster --name $(DEV_CLUSTER)
 
 .PHONY: cluster-delete
-cluster-delete: ## Delete the local vind dev cluster (vcluster delete panoramax-dev)
+cluster-delete: ## Delete the local kind dev cluster
 	@bash -c ' \
 		if [ ! -t 0 ] && [ ! -t 2 ]; then \
 			echo "Error: stdin is not a TTY — cannot confirm in non-interactive mode"; \
@@ -59,7 +59,7 @@ cluster-delete: ## Delete the local vind dev cluster (vcluster delete panoramax-
 		read -r -p "  Delete cluster $(DEV_CLUSTER)? Type YES to continue: " answer; \
 		[ "$$answer" = "YES" ] || { echo "Aborted."; exit 1; } \
 	'
-	vcluster delete $(DEV_CLUSTER)
+	kind delete cluster --name $(DEV_CLUSTER)
 
 ##@ Deployment
 

@@ -1,22 +1,17 @@
 # Panoramax Helm Chart
 
-Helm chart for [Panoramax](https://gitlab.com/panoramax/server/api), a geospatial street-level image management platform. This guide covers local deployment using [vind](https://github.com/loft-sh/vind) (vCluster in Docker).
+Helm chart for [Panoramax](https://gitlab.com/panoramax/server/api), a geospatial street-level image management platform. This guide covers local deployment using [kind](https://kind.sigs.k8s.io) (Kubernetes in Docker).
 
 ## Prerequisites
 
 - Docker running
-- [vCluster CLI](https://www.vcluster.com/docs/get-started) v0.31.0 or later
+- [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
 - Helm 3
 - kubectl
 
-Install the vCluster CLI on macOS:
+Install kind on macOS:
 ```bash
-brew install loft-sh/tap/vcluster
-```
-
-Switch the CLI to use the Docker driver (this is what makes it vind):
-```bash
-vcluster use driver docker
+brew install kind
 ```
 
 ## Before you deploy
@@ -29,7 +24,7 @@ The Keycloak realm configuration is not included in this repo. Copy `keycloak-re
 make cluster-create
 ```
 
-This creates a virtual Kubernetes cluster as a Docker container and configures your kubeconfig automatically. Verify it's working:
+This creates a Kubernetes cluster as a Docker container and configures your kubeconfig automatically. Verify it's working:
 
 ```bash
 kubectl get nodes
@@ -90,15 +85,6 @@ helm upgrade panoramax . --reuse-values \
 ```
 
 Then uncomment the `API_BLUR_URL` env var in `templates/worker/deployment.yaml`.
-
-## Pause and resume the cluster
-
-vind clusters can be paused to free resources without losing state:
-
-```bash
-vcluster pause panoramax-dev
-vcluster resume panoramax-dev
-```
 
 ## Tear down
 
