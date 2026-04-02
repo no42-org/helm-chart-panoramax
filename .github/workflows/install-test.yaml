@@ -12,7 +12,7 @@ jobs:
       # Spin up a real API server so --dry-run=server validates against actual schemas
       - uses: helm/kind-action@v1
 
-      - uses: azure/setup-helm@v4
+      - uses: azure/setup-helm@v5
 
       # Render all templates and validate every manifest against the kind API server
       # without scheduling any pods. This catches invalid field names, bad types,

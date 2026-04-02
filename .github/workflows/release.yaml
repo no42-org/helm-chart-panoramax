@@ -15,7 +15,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: azure/setup-helm@v4
+      - uses: azure/setup-helm@v5
 
       # Packages the chart and publishes it to the gh-pages branch as a Helm repo.
       # Requires a `gh-pages` branch to exist:
