@@ -24,6 +24,6 @@ jobs:
       #   git commit --allow-empty -m "init gh-pages"
       #   git push origin gh-pages
       # After first run: helm repo add panoramax https://no42-org.github.io/helm-chart-panoramax
-      - uses: helm/chart-releaser-action@v1.6.0
+      - uses: helm/chart-releaser-action@v1.7.0
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
