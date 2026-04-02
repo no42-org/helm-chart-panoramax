@@ -26,26 +26,28 @@ templates/
 
 ## Installing
 
+Use `make` — it handles the LoadBalancer IP chicken-and-egg automatically:
+
 ```bash
-# Lint before installing
-helm lint .
-
-# Dry-run to inspect rendered manifests
-helm template panoramax . --set apiExternalUrl=http://<api-ip>:5000
-
-# Install
-helm install panoramax . \
-  --set apiExternalUrl=http://<api-lb-ip>:5000 \
-  --set authExternalUrl=http://<auth-lb-ip>:8182
-
-# Upgrade
-helm upgrade panoramax . --reuse-values
-
-# Scale workers at runtime
-helm upgrade panoramax . --reuse-values --set worker.replicas=10
+make cluster-create # create local vind dev cluster (vcluster create panoramax-dev)
+make cluster-delete # delete local vind dev cluster (vcluster delete panoramax-dev)
+make install        # install + wait for LB IPs + upgrade with real URLs
+make upgrade        # upgrade, reusing existing values
+make lint           # helm lint
+make dry-run        # render templates without deploying
+make status         # show services and external IPs
+make scale-workers REPLICAS=10
+make uninstall
+make help           # full target list
 ```
 
-Get LoadBalancer IPs after install: `kubectl get svc`
+Direct helm commands still work if needed:
+
+```bash
+helm lint .
+helm template panoramax . --set apiExternalUrl=http://<api-ip>:5000
+helm upgrade panoramax . --reuse-values --set worker.replicas=10
+```
 
 ## Required: replace the Keycloak realm
 
