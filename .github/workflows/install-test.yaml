@@ -9,21 +9,27 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      # Spin up a real API server so --dry-run=server validates against actual schemas
+      # Spin up a real API server so --dry-run=server validates against actual schemas.
+      # kind is used here instead of vind: GitHub Actions runners don't expose the kernel
+      # modules (br_netfilter, overlay, bridge) that vind requires.
       - uses: helm/kind-action@v1
 
       - uses: azure/setup-helm@v5
 
-      # Render all templates and validate every manifest against the kind API server
-      # without scheduling any pods. This catches invalid field names, bad types,
-      # and missing required fields that helm lint / helm template miss.
+      - name: make lint
+        run: make lint
+
+      # Server-side validation pipes helm template output into kubectl — this
+      # cannot be expressed as a make target, so the raw command is kept here.
+      # make lint above ensures the Makefile itself is exercised in CI.
       #
       # Note: we skip --dry-run=server for hook Jobs because the pre-install
       # migrations hook has an init container that references the `db` Service
       # (not yet created during pre-install), which would cause a server-side
       # validation rejection. Rendering and linting covers those resources.
-      - name: Validate manifests
+      - name: Validate manifests (server-side)
         run: |
+          set -o pipefail
           helm template panoramax . \
             --set apiExternalUrl=http://127.0.0.1:5000 \
             --set authExternalUrl=http://127.0.0.1:8182 \

@@ -11,14 +11,11 @@ jobs:
 
       - uses: azure/setup-helm@v5
 
-      - name: helm lint
-        run: helm lint .
+      - name: make lint
+        run: make lint
 
-      - name: helm template (dry render)
-        run: |
-          helm template panoramax . \
-            --set apiExternalUrl=http://example.com:5000 \
-            --set authExternalUrl=http://example.com:8182
+      - name: make dry-run
+        run: make dry-run
 
       - name: yamllint
         uses: ibiqlik/action-yamllint@v3
